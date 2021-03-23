@@ -11,6 +11,7 @@
   },
   "devDependencies": {},
   "dependencies": {
+    "cloudinary": "^1.25.1",
     "gatsby-source-strapi": "0.0.12",
     "knex": "0.21.18",
     "sqlite3": "5.0.0",
