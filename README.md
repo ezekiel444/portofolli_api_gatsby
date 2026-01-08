@@ -2,4 +2,4 @@
 
 A quick description of your strapi application
 
-npm run devolop
+npm run develop
