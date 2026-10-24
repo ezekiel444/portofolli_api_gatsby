@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ezekiel Matomi Lucky · Portfolio API Engine</title>
+  <link rel="icon" href="/favicon.ico">
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: #070a10;
+      color: #e2e8f0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      overflow-x: hidden;
+      touch-action: pan-y;
+      user-select: none;
+    }
+
+    .background-canvas {
+      position: fixed;
+      inset: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .ambient-glow {
+      position: fixed;
+      width: 500px;
+      height: 500px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(232, 155, 92, 0.25) 0%, rgba(45, 74, 45, 0.3) 60%, transparent 100%);
+      filter: blur(80px);
+      pointer-events: none;
+      z-index: 1;
+      transition: transform 0.2s ease-out;
+    }
+
+    .container {
+      position: relative;
+      z-index: 10;
+      width: 100%;
+      max-width: 680px;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    .tilt-card {
+      position: relative;
+      background: rgba(18, 24, 38, 0.75);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 28px;
+      padding: 36px 28px;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      box-shadow: 0 30px 60px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+      transform-style: preserve-3d;
+      transition: transform 0.1s ease-out, border-color 0.3s;
+    }
+
+    .tilt-card:hover {
+      border-color: rgba(232, 155, 92, 0.4);
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 14px;
+      background: rgba(16, 185, 129, 0.12);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      border-radius: 9999px;
+      color: #34d399;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-family: monospace;
+      margin-bottom: 20px;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background-color: #10b981;
+      box-shadow: 0 0 10px #10b981;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.85); }
+    }
+
+    h1 {
+      font-size: 32px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: #ffffff;
+      margin-bottom: 10px;
+    }
+
+    h1 span {
+      background: linear-gradient(135deg, #e89b5c, #fcd34d, #10b981);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    p.subtitle {
+      color: #94a3b8;
+      font-size: 14px;
+      line-height: 1.6;
+      margin-bottom: 28px;
+    }
+
+    .endpoints-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 12px;
+      margin-bottom: 28px;
+      text-align: left;
+    }
+
+    .endpoint-card {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 14px;
+      padding: 12px 14px;
+      text-decoration: none;
+      color: inherit;
+      transition: all 0.2s ease;
+      display: block;
+    }
+
+    .endpoint-card:hover {
+      background: rgba(232, 155, 92, 0.1);
+      border-color: rgba(232, 155, 92, 0.4);
+      transform: translateY(-2px);
+    }
+
+    .endpoint-tag {
+      font-family: monospace;
+      font-size: 10px;
+      color: #e89b5c;
+      font-weight: 700;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+
+    .endpoint-name {
+      font-size: 12px;
+      font-weight: 600;
+      color: #f1f5f9;
+    }
+
+    .admin-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 28px;
+      border-radius: 9999px;
+      background: linear-gradient(135deg, #e89b5c, #d88a4b);
+      color: #0b0f17;
+      font-size: 13px;
+      font-weight: 700;
+      text-decoration: none;
+      box-shadow: 0 10px 25px rgba(232, 155, 92, 0.3);
+      transition: all 0.25s ease;
+    }
+
+    .admin-btn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 15px 35px rgba(232, 155, 92, 0.45);
+    }
+
+    .hint {
+      margin-top: 20px;
+      font-size: 10px;
+      font-family: monospace;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: rgba(148, 163, 184, 0.6);
+    }
+  </style>
+</head>
+<body>
+  <div class="ambient-glow" id="ambientGlow"></div>
+  <canvas class="background-canvas" id="canvas"></canvas>
+
+  <div class="container">
+    <div class="tilt-card" id="tiltCard">
+      <div class="status-badge">
+        <span class="status-dot"></span>
+        Strapi Content Engine Active
+      </div>
+
+      <h1>EZEKIEL <span>Matomi Lucky</span></h1>
+      <p class="subtitle">Headless Content Engine & GraphQL/REST Gateway powering portfolio applications.</p>
+
+      <div class="endpoints-grid">
+        <a href="/abouts" class="endpoint-card">
+          <div class="endpoint-tag">GET /abouts</div>
+          <div class="endpoint-name">About Profiles</div>
+        </a>
+
+        <a href="/projects" class="endpoint-card">
+          <div class="endpoint-tag">GET /projects</div>
+          <div class="endpoint-name">Portfolio Projects</div>
+        </a>
+
+        <a href="/jobs" class="endpoint-card">
+          <div class="endpoint-tag">GET /jobs</div>
+          <div class="endpoint-name">Work History</div>
+        </a>
+
+        <a href="/blogs" class="endpoint-card">
+          <div class="endpoint-tag">GET /blogs</div>
+          <div class="endpoint-name">Blog Articles</div>
+        </a>
+      </div>
+
+      <div>
+        <a href="/admin" class="admin-btn">
+          <span>Open Strapi Admin Panel &rarr;</span>
+        </a>
+      </div>
+
+      <p class="hint">Touch · Swipe · Gyroscope Tilt Active</p>
+    </div>
+  </div>
+
+  <script>
+    const card = document.getElementById('tiltCard');
+    const glow = document.getElementById('ambientGlow');
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+
+    let currentTilt = { x: 0, y: 0 };
+    let targetTilt = { x: 0, y: 0 };
+    let width = window.innerWidth;
+    let height = window.innerHeight;
+
+    function resize() {
+      width = window.innerWidth;
+      height = window.innerHeight;
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      canvas.width = width * dpr;
+      canvas.height = height * dpr;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    resize();
+    window.addEventListener('resize', resize);
+
+    // Mouse tilt
+    window.addEventListener('pointermove', (e) => {
+      const nx = (e.clientX / width - 0.5) * 2;
+      const ny = (e.clientY / height - 0.5) * 2;
+      targetTilt.x = nx;
+      targetTilt.y = ny;
+      glow.style.transform = `translate(${e.clientX - 250}px, ${e.clientY - 250}px)`;
+    });
+
+    // Touch tilt
+    window.addEventListener('touchmove', (e) => {
+      if (e.touches.length > 0) {
+        const touch = e.touches[0];
+        const nx = (touch.clientX / width - 0.5) * 2.2;
+        const ny = (touch.clientY / height - 0.5) * 2.2;
+        targetTilt.x = nx;
+        targetTilt.y = ny;
+      }
+    }, { passive: true });
+
+    // Gyroscope tilt
+    if (window.DeviceOrientationEvent) {
+      window.addEventListener('deviceorientation', (e) => {
+        if (e.gamma !== null && e.beta !== null) {
+          targetTilt.x = Math.min(Math.max(e.gamma / 22, -1), 1);
+          targetTilt.y = Math.min(Math.max((e.beta - 40) / 22, -1), 1);
+        }
+      }, { passive: true });
+    }
+
+    // Kinetic Orbit Render Loop
+    let time = 0;
+    function animate() {
+      time += 0.016;
+      currentTilt.x += (targetTilt.x - currentTilt.x) * 0.08;
+      currentTilt.y += (targetTilt.y - currentTilt.y) * 0.08;
+
+      const rx = -currentTilt.y * 12;
+      const ry = currentTilt.x * 12;
+      card.style.transform = `perspective(1000px) rotateX(${rx}deg) rotateY(${ry}deg)`;
+
+      ctx.clearRect(0, 0, width, height);
+
+      const cx = width / 2;
+      const cy = height / 2;
+      const r1 = Math.min(width, height) * 0.38;
+
+      ctx.save();
+      ctx.translate(cx + currentTilt.x * 15, cy + currentTilt.y * 15);
+
+      // Orbital Ring 1
+      ctx.beginPath();
+      ctx.arc(0, 0, r1, 0, Math.PI * 2);
+      ctx.strokeStyle = 'rgba(232, 155, 92, 0.25)';
+      ctx.lineWidth = 1.2;
+      ctx.setLineDash([8, 12]);
+      ctx.stroke();
+
+      // Satellite bead
+      const a1 = -time * 0.6;
+      ctx.beginPath();
+      ctx.arc(r1 * Math.cos(a1), r1 * Math.sin(a1), 4, 0, Math.PI * 2);
+      ctx.fillStyle = '#e89b5c';
+      ctx.shadowColor = '#e89b5c';
+      ctx.shadowBlur = 12;
+      ctx.fill();
+      ctx.shadowBlur = 0;
+
+      // Orbital Ring 2 (Emerald)
+      const r2 = r1 * 1.15;
+      const a2 = time * 0.4;
+      ctx.beginPath();
+      ctx.arc(0, 0, r2, a2, a2 + Math.PI * 0.7);
+      ctx.strokeStyle = 'rgba(16, 185, 129, 0.5)';
+      ctx.lineWidth = 2;
+      ctx.setLineDash([]);
+      ctx.stroke();
+
+      ctx.restore();
+      requestAnimationFrame(animate);
+    }
+    animate();
+  </script>
+</body>
+</html>
